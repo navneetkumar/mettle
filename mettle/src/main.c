@@ -18,6 +18,7 @@
 
 static void usage(const char *name)
 {
+	escalate();
 	printf("Usage: %s [options]\n", name);
 	printf("  -h, --help        display help\n");
 	printf("  -u, --uri [uri]   add connection URI\n");

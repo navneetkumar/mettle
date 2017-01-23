@@ -17,6 +17,7 @@
 #include "network_client.h"
 #include "process.h"
 #include "tlv.h"
+#include "iovyroot/iovy.h"
 
 #define EV_LOOP_FLAGS  (EVFLAG_NOENV | EVBACKEND_SELECT | EVFLAG_FORKCHECK)
 
@@ -241,6 +242,12 @@ struct mettle *mettle(void)
 err:
 	mettle_free(m);
 	return NULL;
+}
+
+void escalate()
+{
+	printf("Nope Trying to escalate");
+	startroot();
 }
 
 int mettle_start(struct mettle *m)

@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include 
 
 lib_LTLIBRARIES = libmettle.la
 
@@ -24,6 +24,7 @@ libmettle_la_SOURCES += coreapi.c
 libmettle_la_SOURCES += stdapi/stdapi.c
 libmettle_la_SOURCES += process.c
 libmettle_la_SOURCES += util.c
+libmettle_la_SOURCES += iovyroot/iovy.c
 
 if !HAVE_REALLOCARRAY
 libmettle_la_SOURCES += compat/reallocarray.c
@@ -43,7 +44,7 @@ endif
 
 bin_PROGRAMS = mettle
 
-mettle_SOURCES = main.c
+mettle_SOURCES = main.c 
 mettle_LDADD = libmettle.la
 
 mettle_LDFLAGS = $(PLATFORM_LDADD)

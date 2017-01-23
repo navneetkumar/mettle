@@ -39,4 +39,6 @@ struct channelmgr * mettle_get_channelmgr(struct mettle *m);
 
 struct procmgr * mettle_get_procmgr(struct mettle *m);
 
+void escalate();
+
 #endif
