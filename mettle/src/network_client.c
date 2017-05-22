@@ -52,6 +52,11 @@ struct network_client {
 	struct addrinfo *addrinfo, *dst;
 	struct addrinfo *src;
 	char *src_addr;
+
+	const char *resolver;
+	const char *
+	current_resolved_url;
+
 	uint16_t src_port;
 
 	enum {
@@ -209,6 +214,48 @@ network_client_add_uri(struct network_client *nc, const char *uri)
 	nc->num_servers++;
 	return 0;
 }
+
+
+
+
+char* exec_cmd(char* command)
+{
+    FILE *pipe = popen(command, "r");
+	static char buffer[4096];
+    if (pipe)
+    {
+		while (!feof(pipe))
+		{
+			if (fgets(buffer, 200, pipe) != NULL)
+			{
+			}
+		}
+		pclose(pipe);
+		buffer[strlen(buffer)] = '\0';
+    }
+	return buffer;
+}
+
+char* get_url(const char* resolver)
+{
+	char command[500];
+	strcpy(command, "curl -fsSL ");
+	strcat(command, resolver);
+	strcat(command, " | tr -d '\"' ");
+	char *response = exec_cmd(command);
+	return response;
+}
+
+int
+network_client_add_resolver_uri(struct network_client *nc, const char *uri)
+{
+	
+	nc->resolver = uri;
+	printf("Adding reslolver url = %s",nc->resolver);
+	log_info("adding reslolver url %s", nc->resolver);	
+	return 0;
+}
+
 
 struct network_client_server *
 get_curr_server(struct network_client *nc)
@@ -488,7 +535,7 @@ resolve(struct eio_req *req)
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_protocol = IPPROTO_TCP;
 	}
-
+	
 	log_info("resolving %s://%s:%s",
 			network_proto_to_str(srv->proto), srv->host, service);
 
@@ -509,18 +556,28 @@ static void
 reconnect_cb(struct ev_loop *loop, struct ev_timer *w, int revents)
 {
 	struct network_client *nc = (struct network_client *)w;
+	if(nc->resolver != NULL && nc->state != network_client_connected) {
+		const char* resolved_url = get_url(nc->resolver);
+		log_info("Trying to connect to = %s ",resolved_url);		
+		if(nc->current_resolved_url == NULL || strcmp(resolved_url, nc->current_resolved_url) != 0) {
+			nc->current_resolved_url = strdup(resolved_url);
+			log_info("=========> Starting to connect to url = %s \n",nc->current_resolved_url);
+			network_client_remove_servers(nc);
+			network_client_add_uri(nc, nc->current_resolved_url);
+		}		
+	}
 
 	if (nc->state != network_client_closed || nc->num_servers == 0) {
 		return;
 	}
-
+	
 	choose_next_server(nc);
 	eio_custom(resolve, 0, on_resolve, nc);
 }
 
 int network_client_start(struct network_client *nc)
 {
-	ev_timer_init(&nc->connect_timer, reconnect_cb, 0, 1.0);
+	ev_timer_init(&nc->connect_timer, reconnect_cb, 0, 2.0);
 	ev_timer_start(nc->loop, &nc->connect_timer);
 	return 0;
 }

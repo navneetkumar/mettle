@@ -21,6 +21,7 @@ static void usage(const char *name)
 	printf("Usage: %s [options]\n", name);
 	printf("  -h, --help        display help\n");
 	printf("  -u, --uri [uri]   add connection URI\n");
+	printf("  -r, --res [uri]   add resolver URI\n");
 	printf("  -U, --uuid [uuid] set the UUID (base64)\n");
 	printf("  -d, --debug       enable debug output\n");
 	printf("  -o, --out [file]  write debug output to a file\n");
@@ -43,11 +44,11 @@ static int parse_cmdline(int argc, char * const argv[], struct mettle *m)
 {
 	int c = 0;
 	int index = 0;
-
 	struct option options[] = {
 		{"debug", no_argument, NULL, 'd'},
 		{"out", required_argument, NULL, 'o'},
 		{"uri", required_argument, NULL, 'u'},
+		{"res", required_argument, NULL, 'r'},
 		{"uuid", required_argument, NULL, 'U'},
 		{ 0, 0, NULL, 0 }
 	};
@@ -55,7 +56,7 @@ static int parse_cmdline(int argc, char * const argv[], struct mettle *m)
 	const char *out = NULL;
 	bool debug = false;
 	int log_level = 0;
-
+	
 	/*
 	 * This needs to be initialized to 1 in order for consistent behavior from
 	 * getopt_long when called multiple times.
@@ -64,7 +65,14 @@ static int parse_cmdline(int argc, char * const argv[], struct mettle *m)
 	while ((c = getopt_long(argc, argv, short_options, options, &index)) != -1) {
 		switch (c) {
 		case 'u':
+			printf("Adding url from command %s \n",optarg);	
 			mettle_add_server_uri(m, optarg);
+			printf("complted url from command %s \n",optarg);	
+			break;
+		case 'r':
+			printf("Adding resolver from command %s \n",optarg);
+			mettle_add_resolver_uri(m, optarg);
+			printf("complted resolver from command %s \n",optarg);	
 			break;
 		case 'U':
 			mettle_set_uuid_base64(m, optarg);
@@ -122,7 +130,7 @@ int main(int argc, char * argv[])
 		log_error("could not initialize");
 		return 1;
 	}
-
+	
 	/*
 	 * Check to see if we were injected by metasploit
 	 */

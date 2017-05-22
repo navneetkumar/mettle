@@ -85,6 +85,11 @@ int mettle_add_server_uri(struct mettle *m, const char *uri)
 	return network_client_add_uri(m->nc, uri);
 }
 
+int mettle_add_resolver_uri(struct mettle *m, const char *uri)
+{
+	return network_client_add_resolver_uri(m->nc, uri);
+}
+
 int mettle_add_tcp_sock(struct mettle *m, int fd)
 {
 	return network_client_add_tcp_sock(m->nc, fd);

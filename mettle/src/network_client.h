@@ -19,6 +19,8 @@ void network_client_set_src(struct network_client *nc, const char *addr, uint16_
 
 int network_client_add_uri(struct network_client *nc, const char *uri);
 
+int network_client_add_resolver_uri(struct network_client *nc, const char *uri);
+
 int network_client_add_tcp_sock(struct network_client *nc, int sock);
 
 int network_client_start(struct network_client *nc);
